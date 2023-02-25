@@ -50,7 +50,8 @@ Creating a hist to represent the frequency of the stepsPerDay calculated.
 
 ```{r}
 sumStepsPerDay <- aggregate(steps ~ date, data, sum, na.rm = TRUE)
-hist(sumStepsPerDay$steps, breaks = seq(0, 25000, by = 2500), 
+hist(sumStepsPerDay$steps, breaks = seq(0, 25000, by = 2500),
+     main="Histogram total steps per day",
      xlab = "Total steps per day", col = "blue", ylim = c(0,25))
 ```
 
@@ -130,7 +131,8 @@ Creating a hist to represent the frequency of the stepsPerDay calculated.
 
 ```{r}
 sumStepsPerDay <- aggregate(steps ~ date, newData, sum)
-hist(sumStepsPerDay$steps, breaks = seq(0, 25000, by = 2500), 
+hist(sumStepsPerDay$steps, breaks = seq(0, 25000, by = 2500),
+     main="Histogram total steps per day (after imputing NAs)",
      xlab = "Total steps per day", col = "blue", ylim = c(0,25))
 ```
 
