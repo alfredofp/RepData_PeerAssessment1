@@ -23,18 +23,44 @@ The dataset is stored in a comma-separated-value (CSV) file and there are a tota
 ## Loading and preprocessing the data
 
 Reading and exploring the data
-```{r}
+
+```r
 data <- read.csv("activity.csv")
 dim(data)
-names(data)
-summary(data)
+```
 
+```
+## [1] 17568     3
+```
+
+```r
+names(data)
+```
+
+```
+## [1] "steps"    "date"     "interval"
+```
+
+```r
+summary(data)
+```
+
+```
+##      steps            date              interval     
+##  Min.   :  0.00   Length:17568       Min.   :   0.0  
+##  1st Qu.:  0.00   Class :character   1st Qu.: 588.8  
+##  Median :  0.00   Mode  :character   Median :1177.5  
+##  Mean   : 37.38                      Mean   :1177.5  
+##  3rd Qu.: 12.00                      3rd Qu.:1766.2  
+##  Max.   :806.00                      Max.   :2355.0  
+##  NA's   :2304
 ```
 The names of the variables are representative enough.  
 We can see there are some observations with NA vaues.  
 The date column is of character. Let's convert it to type Date.
 
-```{r}
+
+```r
 data$date <- as.Date(data$date)
 ```
 
@@ -48,22 +74,35 @@ Creating a hist to represent the frequency of the stepsPerDay calculated.
 
 **using the same y-lim than hist with NAs processed (in chapters below), for visual comparison**
 
-```{r}
+
+```r
 sumStepsPerDay <- aggregate(steps ~ date, data, sum, na.rm = TRUE)
 hist(sumStepsPerDay$steps, breaks = seq(0, 25000, by = 2500), 
      xlab = "Total steps per day", col = "blue", ylim = c(0,25))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 Calculating the **mean** of the total number of steps taken per day:
 
-```{r}
+
+```r
 mean(sumStepsPerDay$steps)
+```
+
+```
+## [1] 10766.19
 ```
 
 Calculating the **median** and median of the total number of steps taken per day:
 
-```{r}
+
+```r
 median(sumStepsPerDay$steps)
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
@@ -71,26 +110,29 @@ median(sumStepsPerDay$steps)
 Making a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).
 For that, let's use aggregate again but clustering by the 5-min interval variable.
 
-```{r}
+
+```r
 meanStepsPerInterval <- aggregate(steps ~ interval, data, mean, na.rm = TRUE)
 
 plot(x=meanStepsPerInterval$interval, y=meanStepsPerInterval$steps, type="l",
      main="Average steps taken per interval",
      ylab="Average number of steps", xlab="5-min Intervals",
      col="blue", lwd=1.5)
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 
 Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
 Visually, it can be detected, but let's look for it via code
 
-```{r}
+
+```r
 max5MinInterval <- meanStepsPerInterval[which.max(meanStepsPerInterval$steps),]$interval
 ```
 
-The 5-minute interval with the highest mean(i.e. hghest total number as well) is **`r max5MinInterval`**
+The 5-minute interval with the highest mean(i.e. hghest total number as well) is **835**
 
 
 ## Imputing missing values
@@ -103,23 +145,26 @@ the mean/median for that day, or the mean for that 5-minute interval, etc.
 The total number of NA values can be observed in the summary initially displayed.
 But, it can be directly obtained via sum(is.na(X)) command as well:
 
-```{r}
+
+```r
 NaValues <- is.na(data$steps)
 sumNaValues <- sum(is.na(data$steps))
 ```
 
-The total number of NA values is **`r sumNaValues`**
+The total number of NA values is **2304**
 
 ### Creating a copy of the original dataset with the NAs filled in.
 
-```{r}
+
+```r
 newData <- data
 ```
 
 Using the mean for the interval calculated previously.  
 Create a match vector of length 2304 (number of NAs) to associate every NA to the corresponding mean value to assign.
 
-```{r}
+
+```r
 matchNAsIntervals <- match((newData [NaValues == TRUE,]$interval), meanStepsPerInterval$interval)
 newData [NaValues == TRUE,]$steps <- meanStepsPerInterval[matchNAsIntervals, ]$steps
 ```
@@ -128,23 +173,36 @@ newData [NaValues == TRUE,]$steps <- meanStepsPerInterval[matchNAsIntervals, ]$s
 
 Creating a hist to represent the frequency of the stepsPerDay calculated.
 
-```{r}
+
+```r
 sumStepsPerDay <- aggregate(steps ~ date, newData, sum)
 hist(sumStepsPerDay$steps, breaks = seq(0, 25000, by = 2500), 
      xlab = "Total steps per day", col = "blue", ylim = c(0,25))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+
 
 Calculating the **mean** of the total number of steps taken per day:
 
-```{r}
+
+```r
 mean(sumStepsPerDay$steps)
+```
+
+```
+## [1] 10766.19
 ```
 
 Calculating the **median** and median of the total number of steps taken per day:
 
-```{r}
+
+```r
 median(sumStepsPerDay$steps)
+```
+
+```
+## [1] 10766.19
 ```
 
 
@@ -168,18 +226,21 @@ Considering the previously created dataset (with NAs converted).
 
 Let's ceate a new variable weekday (Mon .. Sun) in the dataset.
 
-```{r results="hide"}
+
+```r
 Sys.setlocale("LC_TIME", "English")
 ```
 
-```{r}
+
+```r
 newData$weekday <- weekdays(newData$date)
 ```
 
 Let's create a var that distinguises weekdays and with that input,  
 another one that distinguises weekdays from weekends
 
-```{r}
+
+```r
 newData$weekday <- weekdays(newData$date)
 newData$dayType <- ifelse(newData$weekday %in% c("Saturday", "Sunday"), 
                           yes = "weekend",
@@ -190,16 +251,22 @@ newData$dayType <- as.factor(newData$dayType)
 Making a plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
 For that, let's use aggregate, clustering by the 5-min interval variable and dayType factor.
 
-```{r results="hide"}
+
+```r
 meanStepsPerIntervalAndDayType <- aggregate(steps ~ interval+dayType, 
                                              newData, mean)
 
 library(ggplot2)
 ```
 
+```
+## Warning: package 'ggplot2' was built under R version 4.1.3
+```
+
 Plotting using ggplot2
 
-```{r}
+
+```r
 plotMeanStepsIntervalDayType <- ggplot(meanStepsPerIntervalAndDayType, aes(x = interval , y = steps, color = dayType)) + 
   geom_line() + ggtitle("Average Steps by Interval and Day Type") + 
   xlab("5-min Intervals") + 
@@ -208,5 +275,6 @@ plotMeanStepsIntervalDayType <- ggplot(meanStepsPerIntervalAndDayType, aes(x = i
   theme_bw()
 
 print(plotMeanStepsIntervalDayType)
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
